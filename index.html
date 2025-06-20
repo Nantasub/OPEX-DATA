@@ -38,7 +38,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                         <!-- Reordered fields -->
                         <div><label class="block text-sm font-medium text-gray-700">วันที่บันทึกข้อมูล</label><input type="text" id="recordingDate" class="mt-1 w-full p-2 bg-gray-100 border border-gray-300 rounded-lg" readonly></div>
-                        <div><label for="prNumber" class="block text-sm font-medium text-gray-700">เลขที่ PR <span class="text-red-500">*</span></label><input type="text" id="prNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required></div>
+                        <div><label for="prNumber" class="block text-sm font-medium text-gray-700">เลขที่ PR</label><input type="text" id="prNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
                         <div><label for="grDate" class="block text-sm font-medium text-gray-700">วันที่ GR</label><input type="date" id="grDate" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
                         <div><label for="ivNumber" class="block text-sm font-medium text-gray-700">เลขที่ IV (ถ้ามี)</label><input type="text" id="ivNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
                         <div><label for="vendor" class="block text-sm font-medium text-gray-700">Vendor <span class="text-red-500">*</span></label><input list="vendor-list" id="vendor" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required><datalist id="vendor-list"></datalist></div>
@@ -62,18 +62,25 @@
             <!-- Data Analysis Section -->
             <div class="border-t pt-6 mb-8">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">ภาพรวมค่าใช้จ่าย</h2>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
                     <div class="lg:col-span-1 h-64 w-full mx-auto relative">
                         <canvas id="budgetChart"></canvas>
                     </div>
-                    <div class="lg:col-span-2 text-center lg:text-left">
+                    <div class="lg:col-span-1 space-y-3">
                         <div class="bg-blue-50 p-4 rounded-lg">
                            <p class="text-lg">ยอดค่าใช้จ่ายที่ใช้ไปแล้ว: <strong id="total-used" class="text-blue-700">0.00 บาท</strong></p>
                            <p class="text-lg">ยอดค่าใช้จ่ายคงเหลือ: <strong id="total-remaining" class="text-green-700">0.00 บาท</strong></p>
                         </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                           <label for="budget-target-input" class="block text-sm font-medium text-gray-700">ตั้งค่าเป้าหมายงบประมาณ (บาท)</label>
+                           <div class="mt-1 flex items-center space-x-2">
+                               <input type="number" id="budget-target-input" class="p-2 border border-gray-300 rounded-lg w-full" step="0.01">
+                               <button id="update-target-btn" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300">ตั้งค่า</button>
+                           </div>
+                        </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-8">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mt-8">
                     <div>
                         <h3 class="text-xl font-semibold text-gray-700 mb-2 text-center">ค่าใช้จ่ายตาม Type</h3>
                         <div class="h-96 w-full mx-auto"><canvas id="typeChart"></canvas></div>
@@ -81,6 +88,10 @@
                     <div>
                         <h3 class="text-xl font-semibold text-gray-700 mb-2 text-center">ค่าใช้จ่ายตาม Sub Type</h3>
                         <div class="h-96 w-full mx-auto"><canvas id="subTypeChart"></canvas></div>
+                    </div>
+                     <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2 text-center">ค่าใช้จ่ายตาม Vendor</h3>
+                        <div class="h-96 w-full mx-auto"><canvas id="vendorChart"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -91,7 +102,7 @@
                     <h2 class="text-2xl font-bold text-gray-800">ข้อมูลที่บันทึกไว้</h2>
                     <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
                         <input type="month" id="month-filter" class="p-2 border border-gray-300 rounded-lg w-full md:w-auto">
-                        <input type="search" id="pr-search" placeholder="ค้นหาเลขที่ PR..." class="p-2 border border-gray-300 rounded-lg w-full md:w-auto">
+                        <input type="search" id="search-input" placeholder="ค้นหา PR หรือ GR Number..." class="p-2 border border-gray-300 rounded-lg w-full md:w-auto">
                         <button id="export-excel-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-all duration-300 shadow-sm flex items-center space-x-2 justify-center" disabled>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.64L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>
                             <span>Export</span>
@@ -152,12 +163,13 @@
             document.getElementById('form-error').textContent = "Firebase config is invalid.";
         }
 
-        const BUDGET_TARGET = 1958369.9;
+        const DEFAULT_BUDGET = 1958369.9;
+        let currentBudgetTarget = DEFAULT_BUDGET;
         let unsubscribeItems = null;
         let allDataForMonth = [];
         let editingDocId = null;
         
-        let budgetChartInstance, typeChartInstance, subTypeChartInstance;
+        let budgetChartInstance, typeChartInstance, subTypeChartInstance, vendorChartInstance;
 
         const subTypeMap = {'อะไหล่ Stock':{c:'public_subtypes_stock',e:true,o:['สุขภัณฑ์','ระบบน้ำดี','ระบบสื่อสาร','ระบบไฟฟ้า']},'อะไหล่นอก Stock':{c:'public_subtypes_nonstock',e:true,o:['สุขภัณฑ์','ระบบน้ำดี','ระบบสื่อสาร','ระบบไฟฟ้า']},'งานรับเหมาซ่อมระบบวิศวกรรม':{c:'public_subtypes_engineering',e:true,o:['ระบบไฟฟ้า','ระบบสุขาภิบาล','ระบบสื่อสาร','ระบบ CCTV']},'งานรับเหมาซ่อมระบบอาคาร':{e:false,o:[]},'งานรับเหมาซ่อมงานตกแต่งภายใน':{e:false,o:[]},'งานสัญญา PM':{e:false,o:['Chiller','Generator','Firepump','Elevator&Escalator','Clean Room','UPS','Transformer','MDB','Fire Safety','Pneumatic Tube']}};
         
@@ -178,10 +190,12 @@
             confirmDeleteBtn: document.getElementById('modal-confirm-delete'),
             cancelDeleteBtn: document.getElementById('modal-cancel-delete'),
             monthFilter: document.getElementById('month-filter'),
-            prSearch: document.getElementById('pr-search'),
+            searchInput: document.getElementById('search-input'), // Changed ID
             tableBody: document.getElementById('data-table-body'),
             totalUsed: document.getElementById('total-used'),
             totalRemaining: document.getElementById('total-remaining'),
+            budgetTargetInput: document.getElementById('budget-target-input'),
+            updateTargetBtn: document.getElementById('update-target-btn'),
         };
 
         let itemToDelete = null;
@@ -209,8 +223,8 @@
 
             unsubscribeItems = onSnapshot(q, (snapshot) => {
                 allDataForMonth = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                UI.exportBtn.disabled = allDataForMonth.length === 0;
                 allDataForMonth.sort((a, b) => (b.recordingDate?.toDate?.() || 0) - (a.recordingDate?.toDate?.() || 0));
-                
                 renderTableAndCharts();
             }, (error) => {
                 console.error("Error getting documents:", error);
@@ -219,9 +233,12 @@
         }
 
         function renderTableAndCharts() {
-            const searchTerm = UI.prSearch.value.toLowerCase();
+            const searchTerm = UI.searchInput.value.toLowerCase().trim();
             const filteredData = searchTerm
-                ? allDataForMonth.filter(data => data.prNumber?.toLowerCase().includes(searchTerm))
+                ? allDataForMonth.filter(data => 
+                    data.prNumber?.toLowerCase().includes(searchTerm) || 
+                    data.grNumber?.toLowerCase().includes(searchTerm)
+                  )
                 : allDataForMonth;
 
             renderTable(filteredData);
@@ -230,26 +247,12 @@
         
         function renderTable(data) {
             UI.tableBody.innerHTML = '';
-            if (data.length === 0) {
-                UI.tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-gray-500">ไม่พบข้อมูล...</td></tr>`;
-                return;
-            }
+            if (data.length === 0) { UI.tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-gray-500">ไม่พบข้อมูล...</td></tr>`; return; }
             
             data.forEach(item => {
                 const totalPrice = (item.totalPrice || 0).toLocaleString('th-TH', { style: 'currency', currency: 'THB' });
                 const row = UI.tableBody.insertRow();
-                row.innerHTML = `
-                    <td class="px-4 py-3 whitespace-nowrap">${item.recordingDate?.toDate().toLocaleDateString('th-TH') || 'N/A'}</td>
-                    <td class="px-4 py-3 whitespace-nowrap">${item.prNumber || ''}</td>
-                    <td class="px-4 py-3 whitespace-nowrap">${item.vendor || ''}</td>
-                    <td class="px-4 py-3 whitespace-nowrap">${item.item || ''}</td>
-                    <td class="px-4 py-3 whitespace-nowrap text-right">${totalPrice}</td>
-                    <td class="px-4 py-3 whitespace-nowrap">${item.type || ''}</td>
-                    <td class="px-4 py-3 whitespace-nowrap">${item.poNumber || ''}</td>
-                    <td class="px-4 py-3 whitespace-nowrap space-x-2">
-                        <button class="text-blue-600 hover:text-blue-900 edit-btn" data-id="${item.id}">แก้ไข</button>
-                        <button class="text-red-600 hover:text-red-900 delete-btn" data-id="${item.id}">ลบ</button>
-                    </td>`;
+                row.innerHTML = `<td class="px-4 py-3 whitespace-nowrap">${item.recordingDate?.toDate().toLocaleDateString('th-TH') || 'N/A'}</td><td class="px-4 py-3 whitespace-nowrap">${item.prNumber || ''}</td><td class="px-4 py-3 whitespace-nowrap">${item.vendor || ''}</td><td class="px-4 py-3 whitespace-nowrap">${item.item || ''}</td><td class="px-4 py-3 whitespace-nowrap text-right">${totalPrice}</td><td class="px-4 py-3 whitespace-nowrap">${item.type || ''}</td><td class="px-4 py-3 whitespace-nowrap">${item.poNumber || ''}</td><td class="px-4 py-3 whitespace-nowrap space-x-2"><button class="text-blue-600 hover:text-blue-900 edit-btn" data-id="${item.id}">แก้ไข</button><button class="text-red-600 hover:text-red-900 delete-btn" data-id="${item.id}">ลบ</button></td>`;
             });
             
             document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => showDeleteModal(btn.dataset.id)));
@@ -258,52 +261,34 @@
 
         function updateCharts(data) {
             const totalUsed = data.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
-            const totalRemaining = BUDGET_TARGET - totalUsed;
+            const totalRemaining = currentBudgetTarget - totalUsed;
             
             UI.totalUsed.textContent = `${totalUsed.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2})} บาท`;
             UI.totalRemaining.textContent = `${totalRemaining.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2})} บาท`;
             
-            // Budget Chart
-            const budgetData = {
-                labels: ['ใช้ไปแล้ว', 'คงเหลือ'],
-                datasets: [{
-                    data: [totalUsed > 0 ? totalUsed : 0, totalRemaining > 0 ? totalRemaining : 0],
-                    backgroundColor: ['#3B82F6', '#10B981'],
-                    hoverOffset: 4,
-                }]
-            };
+            const budgetData = { labels: ['ใช้ไปแล้ว', 'คงเหลือ'], datasets: [{ data: [totalUsed > 0 ? totalUsed : 0, totalRemaining > 0 ? totalRemaining : 0], backgroundColor: ['#3B82F6', '#10B981'], hoverOffset: 4 }] };
             if(budgetChartInstance) budgetChartInstance.destroy();
             budgetChartInstance = new Chart(document.getElementById('budgetChart'), { type: 'doughnut', data: budgetData, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } } });
 
-            // Type Chart
-            const typeData = data.reduce((acc, item) => {
-                const type = item.type || 'ไม่ระบุ';
-                acc[type] = (acc[type] || 0) + (item.totalPrice || 0);
-                return acc;
-            }, {});
+            const typeData = data.reduce((acc, item) => { acc[item.type || 'ไม่ระบุ'] = (acc[item.type || 'ไม่ระบุ'] || 0) + (item.totalPrice || 0); return acc; }, {});
             if(typeChartInstance) typeChartInstance.destroy();
-            typeChartInstance = new Chart(document.getElementById('typeChart'), { type: 'bar', data: { labels: Object.keys(typeData), datasets: [{ label: 'ยอดรวมตาม Type', data: Object.values(typeData), backgroundColor: '#60A5FA' }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false } });
+            typeChartInstance = new Chart(document.getElementById('typeChart'), { type: 'bar', data: { labels: Object.keys(typeData), datasets: [{ label: 'ยอดรวมตาม Type', data: Object.values(typeData), backgroundColor: '#60A5FA' }] }, options: { responsive: true, maintainAspectRatio: false } });
             
-            // SubType Chart
-            const subTypeData = data.reduce((acc, item) => {
-                if(item.subType) {
-                    const subType = item.subType;
-                    acc[subType] = (acc[subType] || 0) + (item.totalPrice || 0);
-                }
-                return acc;
-            }, {});
+            const subTypeData = data.reduce((acc, item) => { if(item.subType) { acc[item.subType] = (acc[item.subType] || 0) + (item.totalPrice || 0); } return acc; }, {});
             if(subTypeChartInstance) subTypeChartInstance.destroy();
-            subTypeChartInstance = new Chart(document.getElementById('subTypeChart'), { type: 'bar', data: { labels: Object.keys(subTypeData), datasets: [{ label: 'ยอดรวมตาม Sub Type', data: Object.values(subTypeData), backgroundColor: '#818CF8' }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false } });
+            subTypeChartInstance = new Chart(document.getElementById('subTypeChart'), { type: 'bar', data: { labels: Object.keys(subTypeData), datasets: [{ label: 'ยอดรวมตาม Sub Type', data: Object.values(subTypeData), backgroundColor: '#818CF8' }] }, options: { responsive: true, maintainAspectRatio: false } });
+
+            const vendorData = data.reduce((acc, item) => { acc[item.vendor || 'ไม่ระบุ'] = (acc[item.vendor || 'ไม่ระบุ'] || 0) + (item.totalPrice || 0); return acc; }, {});
+            if(vendorChartInstance) vendorChartInstance.destroy();
+            vendorChartInstance = new Chart(document.getElementById('vendorChart'), { type: 'bar', data: { labels: Object.keys(vendorData), datasets: [{ label: 'ยอดรวมตาม Vendor', data: Object.values(vendorData), backgroundColor: '#A78BFA' }] }, options: { responsive: true, maintainAspectRatio: false } });
         }
 
         async function handleEdit(id) {
             editingDocId = id;
             try {
-                const docRef = doc(db, 'public_items', id);
-                const docSnap = await getDoc(docRef);
+                const docSnap = await getDoc(doc(db, 'public_items', id));
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    // Populate form
                     document.getElementById('prNumber').value = data.prNumber || '';
                     document.getElementById('grDate').value = data.grDate || '';
                     document.getElementById('ivNumber').value = data.ivNumber || '';
@@ -312,7 +297,7 @@
                     document.getElementById('unitPrice').value = data.unitPrice || 0;
                     document.getElementById('quantity').value = data.quantity || 0;
                     UI.type.value = data.type || '';
-                    await updateSubTypeOptions(); // wait for options to populate
+                    await updateSubTypeOptions();
                     document.getElementById('subType').value = data.subType || '';
                     document.getElementById('poNumber').value = data.poNumber || '';
                     document.getElementById('grTe').value = data.grTe || 'GR';
@@ -323,12 +308,8 @@
                     UI.submitBtn.classList.replace('bg-blue-600', 'bg-yellow-500');
                     UI.submitBtn.classList.replace('hover:bg-blue-700', 'hover:bg-yellow-600');
                     window.scrollTo(0, 0);
-
                 }
-            } catch (e) {
-                console.error("Error fetching document for edit:", e);
-                resetForm();
-            }
+            } catch (e) { console.error("Error fetching doc for edit:", e); resetForm(); }
         }
         
         function resetForm() {
@@ -345,23 +326,25 @@
         function showDeleteModal(id) { itemToDelete = id; UI.deleteModal.classList.remove('hidden'); }
         function hideDeleteModal() { itemToDelete = null; UI.deleteModal.classList.add('hidden'); }
         
-        async function handleDeleteConfirm() {
-            if (itemToDelete) {
-                try { await deleteDoc(doc(db, 'public_items', itemToDelete)); } 
-                catch (e) { console.error("Error deleting document: ", e); } 
-                finally { hideDeleteModal(); }
-            }
-        }
+        async function handleDeleteConfirm() { if (itemToDelete) { try { await deleteDoc(doc(db, 'public_items', itemToDelete)); } catch (e) { console.error("Error deleting document: ", e); } finally { hideDeleteModal(); } } }
         
         function exportToExcel() {
-            if(allDataForMonth.length === 0) {
-                 UI.formError.textContent = 'ไม่มีข้อมูลสำหรับ Export';
-                 setTimeout(() => UI.formError.textContent = '', 3000);
-                 return;
-            }
+            if(allDataForMonth.length === 0) { UI.formError.textContent = 'ไม่มีข้อมูลสำหรับ Export'; setTimeout(() => UI.formError.textContent = '', 3000); return; }
             const dataToExport = allDataForMonth.map(d => ({'วันที่บันทึก': d.recordingDate?.toDate().toLocaleDateString('th-TH') || '','เลขที่ PR': d.prNumber,'วันที่ GR': d.grDate,'เลขที่ IV': d.ivNumber,'Vendor': d.vendor,'รายการ': d.item,'ราคาต่อหน่วย (Inc. VAT)': d.unitPrice,'จำนวน': d.quantity,'ราคารวม (Inc. VAT)': d.totalPrice,'Type': d.type,'Sub Type': d.subType,'PO Number': d.poNumber,'GR/TE': d.grTe,'GR Number': d.grNumber}));
             try { const ws = XLSX.utils.json_to_sheet(dataToExport); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data Export"); XLSX.writeFile(wb, "opex_export.xlsx"); } 
             catch (e) { console.error("Export to Excel failed:", e); UI.formError.textContent = 'เกิดข้อผิดพลาดในการ Export'; }
+        }
+        
+        function handleUpdateTarget() {
+            const newTarget = parseFloat(UI.budgetTargetInput.value);
+            if (!isNaN(newTarget) && newTarget >= 0) {
+                currentBudgetTarget = newTarget;
+                updateCharts(allDataForMonth); 
+                alert('อัปเดตเป้าหมายงบประมาณสำเร็จ');
+            } else {
+                alert('กรุณาใส่ตัวเลขที่ถูกต้อง');
+                UI.budgetTargetInput.value = currentBudgetTarget;
+            }
         }
 
         if (db) {
@@ -372,37 +355,28 @@
             UI.confirmDeleteBtn.addEventListener('click', handleDeleteConfirm);
             UI.cancelDeleteBtn.addEventListener('click', hideDeleteModal);
             UI.monthFilter.addEventListener('change', listenForDataChanges);
-            UI.prSearch.addEventListener('input', renderTableAndCharts);
+            UI.searchInput.addEventListener('input', renderTableAndCharts);
+            UI.updateTargetBtn.addEventListener('click', handleUpdateTarget);
 
             UI.form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 UI.formError.textContent = '';
-                const formData = {
-                    prNumber: document.getElementById('prNumber').value.trim(), grDate: document.getElementById('grDate').value, ivNumber: document.getElementById('ivNumber').value.trim(), vendor: UI.vendor.value.trim(), item: document.getElementById('item').value.trim(), unitPrice: parseFloat(UI.unitPrice.value) || 0, quantity: parseInt(UI.quantity.value) || 0, totalPrice: (parseFloat(UI.unitPrice.value) || 0) * (parseInt(UI.quantity.value) || 0), type: UI.type.value, subType: UI.subType.disabled ? '' : UI.subType.value.trim(), poNumber: document.getElementById('poNumber').value.trim(), grTe: document.getElementById('grTe').value, grNumber: document.getElementById('grNumber').value.trim()
-                };
-                if (!formData.prNumber || !formData.vendor || !formData.item || !formData.unitPrice || !formData.quantity || !formData.type) { UI.formError.textContent = 'กรุณากรอกข้อมูลในช่องที่มีเครื่องหมาย * ให้ครบถ้วน'; return; }
+                const formData = { prNumber: document.getElementById('prNumber').value.trim(), grDate: document.getElementById('grDate').value, ivNumber: document.getElementById('ivNumber').value.trim(), vendor: UI.vendor.value.trim(), item: document.getElementById('item').value.trim(), unitPrice: parseFloat(UI.unitPrice.value) || 0, quantity: parseInt(UI.quantity.value) || 0, totalPrice: (parseFloat(UI.unitPrice.value) || 0) * (parseInt(UI.quantity.value) || 0), type: UI.type.value, subType: UI.subType.disabled ? '' : UI.subType.value.trim(), poNumber: document.getElementById('poNumber').value.trim(), grTe: document.getElementById('grTe').value, grNumber: document.getElementById('grNumber').value.trim() };
+                if (!formData.vendor || !formData.item || !formData.unitPrice || !formData.quantity || !formData.type) { UI.formError.textContent = 'กรุณากรอกข้อมูลในช่องที่มีเครื่องหมาย * ให้ครบถ้วน'; return; }
                 
                 try {
-                    if(editingDocId) {
-                        await updateDoc(doc(db, 'public_items', editingDocId), formData);
-                    } else {
-                        formData.recordingDate = serverTimestamp();
-                        await addDoc(collection(db, 'public_items'), formData);
-                    }
+                    if(editingDocId) { await updateDoc(doc(db, 'public_items', editingDocId), formData); } 
+                    else { formData.recordingDate = serverTimestamp(); await addDoc(collection(db, 'public_items'), formData); }
                     await addUniqueItem('public_vendors', formData.vendor);
                     const subTypeConfig = subTypeMap[formData.type];
-                    if (subTypeConfig && subTypeConfig.e && formData.subType) {
-                        await addUniqueItem(subTypeConfig.c, formData.subType);
-                    }
+                    if (subTypeConfig && subTypeConfig.e && formData.subType) { await addUniqueItem(subTypeConfig.c, formData.subType); }
                     resetForm();
-                } catch (error) {
-                    console.error("Error writing document:", error);
-                    UI.formError.textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
-                }
+                } catch (error) { console.error("Error writing document:", error); UI.formError.textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล'; }
             });
 
             const today = new Date();
             UI.monthFilter.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            UI.budgetTargetInput.value = currentBudgetTarget;
             listenForDataChanges();
             populateDatalist('public_vendors', UI.vendorList); 
             resetForm();
