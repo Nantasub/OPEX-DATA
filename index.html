@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>โปรแกรมบันทึกข้อมูล PR/GR (GitHub Pages)</title>
+    <title>โปรแกรมบันทึก OPEX-FM-BHH</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- SheetJS (xlsx) for Excel Export -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <!-- Google Fonts: Sarabun & Inter -->
@@ -26,7 +28,7 @@
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <div class="w-full bg-white p-6 sm:p-8 rounded-xl shadow-lg">
             <header class="mb-8 text-center">
-                <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">โปรแกรมบันทึกข้อมูล PR/GR</h1>
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">โปรแกรมบันทึก OPEX-FM-BHH</h1>
                 <p class="text-gray-500 mt-2">ขับเคลื่อนโดย Firebase Firestore</p>
             </header>
 
@@ -34,27 +36,21 @@
             <form id="data-form" class="mb-8 border-t pt-6">
                  <fieldset id="data-fieldset" disabled>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                        <!-- Form columns -->
-                        <div class="space-y-4">
-                            <div><label class="block text-sm font-medium text-gray-700">วันที่บันทึกข้อมูล</label><input type="text" id="recordingDate" class="mt-1 w-full p-2 bg-gray-100 border border-gray-300 rounded-lg" readonly></div>
-                            <div><label for="prNumber" class="block text-sm font-medium text-gray-700">เลขที่ PR <span class="text-red-500">*</span></label><input type="text" id="prNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required></div>
-                            <div><label for="grDate" class="block text-sm font-medium text-gray-700">วันที่ GR</label><input type="date" id="grDate" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
-                            <div><label for="ivNumber" class="block text-sm font-medium text-gray-700">เลขที่ IV (ถ้ามี)</label><input type="text" id="ivNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
-                        </div>
-                        <div class="space-y-4">
-                            <div><label for="vendor" class="block text-sm font-medium text-gray-700">Vendor <span class="text-red-500">*</span></label><input list="vendor-list" id="vendor" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required><datalist id="vendor-list"></datalist></div>
-                            <div><label for="item" class="block text-sm font-medium text-gray-700">รายการ <span class="text-red-500">*</span></label><input type="text" id="item" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required></div>
-                            <div><label for="unitPrice" class="block text-sm font-medium text-gray-700">ราคาต่อหน่วย (Inc. VAT) <span class="text-red-500">*</span></label><input type="number" id="unitPrice" step="0.01" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required></div>
-                            <div><label for="quantity" class="block text-sm font-medium text-gray-700">จำนวน <span class="text-red-500">*</span></label><input type="number" id="quantity" step="1" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required></div>
-                            <div><label class="block text-sm font-medium text-gray-700">ราคารวม (Inc. VAT)</label><input type="text" id="totalPrice" class="mt-1 w-full p-2 bg-gray-100 border border-gray-300 rounded-lg" readonly></div>
-                        </div>
-                        <div class="space-y-4">
-                            <div><label for="type" class="block text-sm font-medium text-gray-700">Type <span class="text-red-500">*</span></label><select id="type" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required><option value="">-- กรุณาเลือก --</option><option value="อะไหล่ Stock">อะไหล่ Stock</option><option value="อะไหล่นอก Stock">อะไหล่นอก Stock</option><option value="งานรับเหมาซ่อมระบบวิศวกรรม">งานรับเหมาซ่อมระบบวิศวกรรม</option><option value="งานรับเหมาซ่อมระบบอาคาร">งานรับเหมาซ่อมระบบอาคาร</option><option value="งานรับเหมาซ่อมงานตกแต่งภายใน">งานรับเหมาซ่อมงานตกแต่งภายใน</option><option value="งานสัญญา PM">งานสัญญา PM</option></select></div>
-                            <div><label for="subType" class="block text-sm font-medium text-gray-700">Sub Type</label><input list="subType-list" id="subType" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" disabled><datalist id="subType-list"></datalist></div>
-                            <div><label for="poNumber" class="block text-sm font-medium text-gray-700">PO Number</label><input type="text" id="poNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
-                            <div><label for="grTe" class="block text-sm font-medium text-gray-700">GR/TE</label><select id="grTe" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"><option value="GR">GR</option><option value="TE">TE</option></select></div>
-                            <div><label for="grNumber" class="block text-sm font-medium text-gray-700">GR Number</label><input type="text" id="grNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
-                        </div>
+                        <!-- Reordered fields -->
+                        <div><label class="block text-sm font-medium text-gray-700">วันที่บันทึกข้อมูล</label><input type="text" id="recordingDate" class="mt-1 w-full p-2 bg-gray-100 border border-gray-300 rounded-lg" readonly></div>
+                        <div><label for="prNumber" class="block text-sm font-medium text-gray-700">เลขที่ PR <span class="text-red-500">*</span></label><input type="text" id="prNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required></div>
+                        <div><label for="grDate" class="block text-sm font-medium text-gray-700">วันที่ GR</label><input type="date" id="grDate" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
+                        <div><label for="ivNumber" class="block text-sm font-medium text-gray-700">เลขที่ IV (ถ้ามี)</label><input type="text" id="ivNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
+                        <div><label for="vendor" class="block text-sm font-medium text-gray-700">Vendor <span class="text-red-500">*</span></label><input list="vendor-list" id="vendor" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required><datalist id="vendor-list"></datalist></div>
+                        <div><label for="item" class="block text-sm font-medium text-gray-700">รายการ <span class="text-red-500">*</span></label><input type="text" id="item" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required></div>
+                        <div><label for="unitPrice" class="block text-sm font-medium text-gray-700">ราคาต่อหน่วย (Inc. VAT) <span class="text-red-500">*</span></label><input type="number" id="unitPrice" step="0.01" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required></div>
+                        <div><label for="quantity" class="block text-sm font-medium text-gray-700">จำนวน <span class="text-red-500">*</span></label><input type="number" id="quantity" step="1" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required></div>
+                        <div><label class="block text-sm font-medium text-gray-700">ราคารวม (Inc. VAT)</label><input type="text" id="totalPrice" class="mt-1 w-full p-2 bg-gray-100 border border-gray-300 rounded-lg" readonly></div>
+                        <div><label for="type" class="block text-sm font-medium text-gray-700">Type <span class="text-red-500">*</span></label><select id="type" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" required><option value="">-- กรุณาเลือก --</option><option value="อะไหล่ Stock">อะไหล่ Stock</option><option value="อะไหล่นอก Stock">อะไหล่นอก Stock</option><option value="งานรับเหมาซ่อมระบบวิศวกรรม">งานรับเหมาซ่อมระบบวิศวกรรม</option><option value="งานรับเหมาซ่อมระบบอาคาร">งานรับเหมาซ่อมระบบอาคาร</option><option value="งานรับเหมาซ่อมงานตกแต่งภายใน">งานรับเหมาซ่อมงานตกแต่งภายใน</option><option value="งานสัญญา PM">งานสัญญา PM</option></select></div>
+                        <div><label for="subType" class="block text-sm font-medium text-gray-700">Sub Type</label><input list="subType-list" id="subType" class="mt-1 w-full p-2 border border-gray-300 rounded-lg" disabled><datalist id="subType-list"></datalist></div>
+                        <div><label for="poNumber" class="block text-sm font-medium text-gray-700">PO Number</label><input type="text" id="poNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
+                        <div><label for="grTe" class="block text-sm font-medium text-gray-700">GR/TE</label><select id="grTe" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"><option value="GR">GR</option><option value="TE">TE</option></select></div>
+                        <div><label for="grNumber" class="block text-sm font-medium text-gray-700">GR Number</label><input type="text" id="grNumber" class="mt-1 w-full p-2 border border-gray-300 rounded-lg"></div>
                     </div>
                 </fieldset>
                 <div class="mt-6 text-center">
@@ -63,24 +59,54 @@
                 </div>
             </form>
 
+            <!-- Data Analysis Section -->
+            <div class="border-t pt-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">ภาพรวมค่าใช้จ่าย</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                    <div class="lg:col-span-1 h-64 w-full mx-auto relative">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                    <div class="lg:col-span-2 text-center lg:text-left">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                           <p class="text-lg">ยอดค่าใช้จ่ายที่ใช้ไปแล้ว: <strong id="total-used" class="text-blue-700">0.00 บาท</strong></p>
+                           <p class="text-lg">ยอดค่าใช้จ่ายคงเหลือ: <strong id="total-remaining" class="text-green-700">0.00 บาท</strong></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mt-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2 text-center">ค่าใช้จ่ายตาม Type</h3>
+                        <div class="h-96 w-full mx-auto"><canvas id="typeChart"></canvas></div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2 text-center">ค่าใช้จ่ายตาม Sub Type</h3>
+                        <div class="h-96 w-full mx-auto"><canvas id="subTypeChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Data Display Table -->
             <div class="border-t pt-6">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
                     <h2 class="text-2xl font-bold text-gray-800">ข้อมูลที่บันทึกไว้</h2>
-                    <button id="export-excel-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-all duration-300 shadow-sm flex items-center space-x-2 w-full md:w-auto justify-center" disabled>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.64L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>
-                        <span>Export เป็น Excel</span>
-                    </button>
+                    <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                        <input type="month" id="month-filter" class="p-2 border border-gray-300 rounded-lg w-full md:w-auto">
+                        <input type="search" id="pr-search" placeholder="ค้นหาเลขที่ PR..." class="p-2 border border-gray-300 rounded-lg w-full md:w-auto">
+                        <button id="export-excel-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-all duration-300 shadow-sm flex items-center space-x-2 justify-center" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.64L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>
+                            <span>Export</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto border border-gray-200 rounded-lg">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">วันที่บันทึก</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">PR No.</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">Vendor</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">รายการ</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">ราคารวม</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">Type</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">Sub Type</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">PO No.</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">Action</th>
+                                <th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">วันที่บันทึก</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">PR No.</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">Vendor</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">รายการ</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">ราคารวม</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">Type</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">PO No.</th><th class="px-4 py-3 text-left font-bold text-gray-600 uppercase">Action</th>
                             </tr>
                         </thead>
                         <tbody id="data-table-body" class="bg-white divide-y divide-gray-200">
-                             <tr><td colspan="9" class="text-center p-4 text-gray-500">กำลังเชื่อมต่อ...</td></tr>
+                             <tr><td colspan="8" class="text-center p-4 text-gray-500">กำลังเชื่อมต่อ...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -88,7 +114,6 @@
         </div>
     </div>
     
-    <!-- Modal for Deletion Confirmation -->
     <div id="delete-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div class="mt-3 text-center">
@@ -102,12 +127,10 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, deleteDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, deleteDoc, getDocs, setDoc, where, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Configuration ---
         const firebaseConfig = {
           apiKey: "AIzaSyAs5P_1K4ooS67wrGbsThKqaXBCg0YJvtY",
           authDomain: "opex-web-ca626.firebaseapp.com",
@@ -118,7 +141,6 @@
           measurementId: "G-L9NWD7DEB7"
         };
         
-        // --- Firebase Initialization ---
         let db;
         try {
             const app = initializeApp(firebaseConfig);
@@ -130,209 +152,260 @@
             document.getElementById('form-error').textContent = "Firebase config is invalid.";
         }
 
-        // --- Global State ---
+        const BUDGET_TARGET = 1958369.9;
         let unsubscribeItems = null;
-        let currentDataForExport = [];
-        const subTypeMap = {
-            'อะไหล่ Stock': { collectionName: 'public_subtypes_stock', isExtensible: true, options: ['สุขภัณฑ์', 'ระบบน้ำดี', 'ระบบสื่อสาร', 'ระบบไฟฟ้า'] },
-            'อะไหล่นอก Stock': { collectionName: 'public_subtypes_nonstock', isExtensible: true, options: ['สุขภัณฑ์', 'ระบบน้ำดี', 'ระบบสื่อสาร', 'ระบบไฟฟ้า'] },
-            'งานรับเหมาซ่อมระบบวิศวกรรม': { collectionName: 'public_subtypes_engineering', isExtensible: true, options: ['ระบบไฟฟ้า', 'ระบบสุขาภิบาล', 'ระบบสื่อสาร', 'ระบบ CCTV'] },
-            'งานรับเหมาซ่อมระบบอาคาร': { isExtensible: false, options: [] },
-            'งานรับเหมาซ่อมงานตกแต่งภายใน': { isExtensible: false, options: [] },
-            'งานสัญญา PM': { isExtensible: false, options: ['Chiller', 'Generator', 'Firepump', 'Elevator&Escalator', 'Clean Room', 'UPS', 'Transformer', 'MDB', 'Fire Safety', 'Pneumatic Tube'] }
+        let allDataForMonth = [];
+        let editingDocId = null;
+        
+        let budgetChartInstance, typeChartInstance, subTypeChartInstance;
+
+        const subTypeMap = {'อะไหล่ Stock':{c:'public_subtypes_stock',e:true,o:['สุขภัณฑ์','ระบบน้ำดี','ระบบสื่อสาร','ระบบไฟฟ้า']},'อะไหล่นอก Stock':{c:'public_subtypes_nonstock',e:true,o:['สุขภัณฑ์','ระบบน้ำดี','ระบบสื่อสาร','ระบบไฟฟ้า']},'งานรับเหมาซ่อมระบบวิศวกรรม':{c:'public_subtypes_engineering',e:true,o:['ระบบไฟฟ้า','ระบบสุขาภิบาล','ระบบสื่อสาร','ระบบ CCTV']},'งานรับเหมาซ่อมระบบอาคาร':{e:false,o:[]},'งานรับเหมาซ่อมงานตกแต่งภายใน':{e:false,o:[]},'งานสัญญา PM':{e:false,o:['Chiller','Generator','Firepump','Elevator&Escalator','Clean Room','UPS','Transformer','MDB','Fire Safety','Pneumatic Tube']}};
+        
+        const UI = {
+            form: document.getElementById('data-form'),
+            submitBtn: document.getElementById('submit-btn'),
+            formError: document.getElementById('form-error'),
+            unitPrice: document.getElementById('unitPrice'),
+            quantity: document.getElementById('quantity'),
+            totalPrice: document.getElementById('totalPrice'),
+            type: document.getElementById('type'),
+            subType: document.getElementById('subType'),
+            subTypeList: document.getElementById('subType-list'),
+            vendor: document.getElementById('vendor'),
+            vendorList: document.getElementById('vendor-list'),
+            exportBtn: document.getElementById('export-excel-btn'),
+            deleteModal: document.getElementById('delete-modal'),
+            confirmDeleteBtn: document.getElementById('modal-confirm-delete'),
+            cancelDeleteBtn: document.getElementById('modal-cancel-delete'),
+            monthFilter: document.getElementById('month-filter'),
+            prSearch: document.getElementById('pr-search'),
+            tableBody: document.getElementById('data-table-body'),
+            totalUsed: document.getElementById('total-used'),
+            totalRemaining: document.getElementById('total-remaining'),
         };
 
-        // --- UI Elements ---
-        const form = document.getElementById('data-form');
-        const formError = document.getElementById('form-error');
-        const unitPriceInput = document.getElementById('unitPrice');
-        const quantityInput = document.getElementById('quantity');
-        const totalPriceInput = document.getElementById('totalPrice');
-        const typeSelect = document.getElementById('type');
-        const subTypeInput = document.getElementById('subType');
-        const subTypeDatalist = document.getElementById('subType-list');
-        const vendorInput = document.getElementById('vendor');
-        const vendorDatalist = document.getElementById('vendor-list');
-        const exportBtn = document.getElementById('export-excel-btn');
-        const deleteModal = document.getElementById('delete-modal');
-        const confirmDeleteBtn = document.getElementById('modal-confirm-delete');
-        const cancelDeleteBtn = document.getElementById('modal-cancel-delete');
         let itemToDelete = null;
-
-        // --- Functions ---
         
-        async function populateDatalist(collectionName, datalistElement, defaultOptions = []) {
-            try {
-                const collectionRef = collection(db, collectionName);
-                const snapshot = await getDocs(collectionRef);
-                const items = new Set(defaultOptions);
-                snapshot.forEach(doc => items.add(doc.data().name));
-                datalistElement.innerHTML = '';
-                Array.from(items).sort().forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item;
-                    datalistElement.appendChild(option);
-                });
-            } catch (error) {
-                console.error(`Error populating ${collectionName}:`, error);
-            }
-        }
+        async function populateDatalist(col, el, def) { try { const snap = await getDocs(collection(db, col)); const items = new Set(def); snap.forEach(doc => items.add(doc.data().name)); el.innerHTML = ''; Array.from(items).sort().forEach(item => { const opt = document.createElement('option'); opt.value = item; el.appendChild(opt); }); } catch (e) { console.error(`Error populating ${col}:`, e); } }
+        async function addUniqueItem(col, name) { if (!name) return; try { await setDoc(doc(db, col, name), { name }); } catch (e) { console.error(`Error upserting item to ${col}:`, e); } }
         
-        async function addUniqueItemToCollection(collectionName, itemName) {
-            if (!itemName) return;
-            try {
-                const docRef = doc(db, collectionName, itemName);
-                await setDoc(docRef, { name: itemName });
-                console.log(`Upserted "${itemName}" in ${collectionName}`);
-            } catch (error) {
-                console.error(`Error upserting item to ${collectionName}:`, error);
-            }
-        }
-        
-        function updateSubTypeOptions() {
-            const selectedType = typeSelect.value;
-            const config = subTypeMap[selectedType];
-            subTypeInput.value = '';
-            subTypeDatalist.innerHTML = '';
-            if (config && config.options.length > 0) {
-                subTypeInput.disabled = false;
-                config.options.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt;
-                    subTypeDatalist.appendChild(option);
-                });
-                if (config.isExtensible && config.collectionName) {
-                    populateDatalist(config.collectionName, subTypeDatalist, config.options);
-                }
-            } else {
-                subTypeInput.disabled = true;
-            }
-        }
-        
-        function calculateTotalPrice() {
-            const unitPrice = parseFloat(unitPriceInput.value) || 0;
-            const quantity = parseInt(quantityInput.value) || 0;
-            totalPriceInput.value = (unitPrice * quantity).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
+        function updateSubTypeOptions() { const config = subTypeMap[UI.type.value]; UI.subType.value = ''; UI.subTypeList.innerHTML = ''; if (config && config.o.length > 0) { UI.subType.disabled = false; config.o.forEach(opt => { const o = document.createElement('option'); o.value = opt; UI.subTypeList.appendChild(o); }); if (config.e && config.c) { populateDatalist(config.c, UI.subTypeList, config.o); } } else { UI.subType.disabled = true; } }
+        function calculateTotalPrice() { const p = parseFloat(UI.unitPrice.value) || 0; const q = parseInt(UI.quantity.value) || 0; UI.totalPrice.value = (p * q).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
         function listenForDataChanges() {
-            if (unsubscribeItems) unsubscribeItems(); 
-            const itemsCollectionRef = collection(db, 'public_items');
-            const q = query(itemsCollectionRef);
+            if (unsubscribeItems) unsubscribeItems();
             
-            document.getElementById('data-table-body').innerHTML = '<tr><td colspan="9" class="text-center p-4 text-gray-500">กำลังโหลดข้อมูล...</td></tr>';
+            const selectedMonth = UI.monthFilter.value;
+            if (!selectedMonth) return;
+
+            const [year, month] = selectedMonth.split('-');
+            const startDate = new Date(year, month - 1, 1);
+            const endDate = new Date(year, month, 0, 23, 59, 59);
+
+            const itemsRef = collection(db, 'public_items');
+            const q = query(itemsRef, where("grDate", ">=", startDate.toISOString().split('T')[0]), where("grDate", "<=", endDate.toISOString().split('T')[0]));
+            
+            UI.tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-gray-500">กำลังโหลดข้อมูลเดือน ${month}/${year}...</td></tr>`;
 
             unsubscribeItems = onSnapshot(q, (snapshot) => {
-                const tableBody = document.getElementById('data-table-body');
-                tableBody.innerHTML = '';
-                const dataForExport = [];
-                if (snapshot.empty) {
-                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center p-4 text-gray-500">ยังไม่มีข้อมูล...</td></tr>';
-                    currentDataForExport = [];
-                    exportBtn.disabled = true;
-                    return;
-                }
+                allDataForMonth = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                allDataForMonth.sort((a, b) => (b.recordingDate?.toDate?.() || 0) - (a.recordingDate?.toDate?.() || 0));
                 
-                exportBtn.disabled = false;
-                const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                docs.sort((a, b) => (b.recordingDate?.toDate?.() || 0) - (a.recordingDate?.toDate?.() || 0));
-
-                docs.forEach(data => {
-                    const docId = data.id;
-                    const recordingDate = data.recordingDate?.toDate ? data.recordingDate.toDate().toLocaleDateString('th-TH') : 'N/A';
-                    const grDate = data.grDate ? new Date(data.grDate).toLocaleDateString('th-TH') : '';
-                    const totalPrice = (data.totalPrice || 0).toLocaleString('th-TH', { style: 'currency', currency: 'THB' });
-                    
-                    const row = tableBody.insertRow();
-                    row.innerHTML = `<td class="px-4 py-3 whitespace-nowrap">${recordingDate}</td><td class="px-4 py-3 whitespace-nowrap">${data.prNumber || ''}</td><td class="px-4 py-3 whitespace-nowrap">${data.vendor || ''}</td><td class="px-4 py-3 whitespace-nowrap">${data.item || ''}</td><td class="px-4 py-3 whitespace-nowrap text-right">${totalPrice}</td><td class="px-4 py-3 whitespace-nowrap">${data.type || ''}</td><td class="px-4 py-3 whitespace-nowrap">${data.subType || ''}</td><td class="px-4 py-3 whitespace-nowrap">${data.poNumber || ''}</td><td class="px-4 py-3 whitespace-nowrap"><button class="text-red-600 hover:text-red-900 delete-btn" data-id="${docId}">ลบ</button></td>`;
-
-                    dataForExport.push({
-                        'วันที่บันทึก': recordingDate, 'เลขที่ PR': data.prNumber, 'วันที่ GR': grDate, 'เลขที่ IV': data.ivNumber, 'Vendor': data.vendor, 'รายการ': data.item, 'ราคาต่อหน่วย (Inc. VAT)': data.unitPrice, 'จำนวน': data.quantity, 'ราคารวม (Inc. VAT)': data.totalPrice, 'Type': data.type, 'Sub Type': data.subType, 'PO Number': data.poNumber, 'GR/TE': data.grTe, 'GR Number': data.grNumber
-                    });
-                });
-                
-                currentDataForExport = dataForExport;
-                document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => showDeleteModal(btn.dataset.id)));
+                renderTableAndCharts();
             }, (error) => {
                 console.error("Error getting documents:", error);
-                document.getElementById('data-table-body').innerHTML = `<tr><td colspan="9" class="text-center p-4 text-red-500">เกิดข้อผิดพลาด: ${error.message}</td></tr>`;
+                UI.tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-red-500">เกิดข้อผิดพลาด: ${error.message}</td></tr>`;
             });
         }
-        
-        function showDeleteModal(id) { itemToDelete = id; deleteModal.classList.remove('hidden'); }
-        function hideDeleteModal() { itemToDelete = null; deleteModal.classList.add('hidden'); }
 
+        function renderTableAndCharts() {
+            const searchTerm = UI.prSearch.value.toLowerCase();
+            const filteredData = searchTerm
+                ? allDataForMonth.filter(data => data.prNumber?.toLowerCase().includes(searchTerm))
+                : allDataForMonth;
+
+            renderTable(filteredData);
+            updateCharts(allDataForMonth);
+        }
+        
+        function renderTable(data) {
+            UI.tableBody.innerHTML = '';
+            if (data.length === 0) {
+                UI.tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-gray-500">ไม่พบข้อมูล...</td></tr>`;
+                return;
+            }
+            
+            data.forEach(item => {
+                const totalPrice = (item.totalPrice || 0).toLocaleString('th-TH', { style: 'currency', currency: 'THB' });
+                const row = UI.tableBody.insertRow();
+                row.innerHTML = `
+                    <td class="px-4 py-3 whitespace-nowrap">${item.recordingDate?.toDate().toLocaleDateString('th-TH') || 'N/A'}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${item.prNumber || ''}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${item.vendor || ''}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${item.item || ''}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-right">${totalPrice}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${item.type || ''}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${item.poNumber || ''}</td>
+                    <td class="px-4 py-3 whitespace-nowrap space-x-2">
+                        <button class="text-blue-600 hover:text-blue-900 edit-btn" data-id="${item.id}">แก้ไข</button>
+                        <button class="text-red-600 hover:text-red-900 delete-btn" data-id="${item.id}">ลบ</button>
+                    </td>`;
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => showDeleteModal(btn.dataset.id)));
+            document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => handleEdit(btn.dataset.id)));
+        }
+
+        function updateCharts(data) {
+            const totalUsed = data.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+            const totalRemaining = BUDGET_TARGET - totalUsed;
+            
+            UI.totalUsed.textContent = `${totalUsed.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2})} บาท`;
+            UI.totalRemaining.textContent = `${totalRemaining.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2})} บาท`;
+            
+            // Budget Chart
+            const budgetData = {
+                labels: ['ใช้ไปแล้ว', 'คงเหลือ'],
+                datasets: [{
+                    data: [totalUsed > 0 ? totalUsed : 0, totalRemaining > 0 ? totalRemaining : 0],
+                    backgroundColor: ['#3B82F6', '#10B981'],
+                    hoverOffset: 4,
+                }]
+            };
+            if(budgetChartInstance) budgetChartInstance.destroy();
+            budgetChartInstance = new Chart(document.getElementById('budgetChart'), { type: 'doughnut', data: budgetData, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } } });
+
+            // Type Chart
+            const typeData = data.reduce((acc, item) => {
+                const type = item.type || 'ไม่ระบุ';
+                acc[type] = (acc[type] || 0) + (item.totalPrice || 0);
+                return acc;
+            }, {});
+            if(typeChartInstance) typeChartInstance.destroy();
+            typeChartInstance = new Chart(document.getElementById('typeChart'), { type: 'bar', data: { labels: Object.keys(typeData), datasets: [{ label: 'ยอดรวมตาม Type', data: Object.values(typeData), backgroundColor: '#60A5FA' }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false } });
+            
+            // SubType Chart
+            const subTypeData = data.reduce((acc, item) => {
+                if(item.subType) {
+                    const subType = item.subType;
+                    acc[subType] = (acc[subType] || 0) + (item.totalPrice || 0);
+                }
+                return acc;
+            }, {});
+            if(subTypeChartInstance) subTypeChartInstance.destroy();
+            subTypeChartInstance = new Chart(document.getElementById('subTypeChart'), { type: 'bar', data: { labels: Object.keys(subTypeData), datasets: [{ label: 'ยอดรวมตาม Sub Type', data: Object.values(subTypeData), backgroundColor: '#818CF8' }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false } });
+        }
+
+        async function handleEdit(id) {
+            editingDocId = id;
+            try {
+                const docRef = doc(db, 'public_items', id);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    // Populate form
+                    document.getElementById('prNumber').value = data.prNumber || '';
+                    document.getElementById('grDate').value = data.grDate || '';
+                    document.getElementById('ivNumber').value = data.ivNumber || '';
+                    document.getElementById('vendor').value = data.vendor || '';
+                    document.getElementById('item').value = data.item || '';
+                    document.getElementById('unitPrice').value = data.unitPrice || 0;
+                    document.getElementById('quantity').value = data.quantity || 0;
+                    UI.type.value = data.type || '';
+                    await updateSubTypeOptions(); // wait for options to populate
+                    document.getElementById('subType').value = data.subType || '';
+                    document.getElementById('poNumber').value = data.poNumber || '';
+                    document.getElementById('grTe').value = data.grTe || 'GR';
+                    document.getElementById('grNumber').value = data.grNumber || '';
+                    calculateTotalPrice();
+                    
+                    UI.submitBtn.textContent = 'อัปเดตข้อมูล';
+                    UI.submitBtn.classList.replace('bg-blue-600', 'bg-yellow-500');
+                    UI.submitBtn.classList.replace('hover:bg-blue-700', 'hover:bg-yellow-600');
+                    window.scrollTo(0, 0);
+
+                }
+            } catch (e) {
+                console.error("Error fetching document for edit:", e);
+                resetForm();
+            }
+        }
+        
+        function resetForm() {
+            editingDocId = null;
+            UI.form.reset();
+            UI.submitBtn.textContent = 'บันทึกข้อมูล';
+            UI.submitBtn.classList.replace('bg-yellow-500', 'bg-blue-600');
+            UI.submitBtn.classList.replace('hover:bg-yellow-600', 'hover:bg-blue-700');
+            document.getElementById('recordingDate').value = new Date().toLocaleDateString('th-TH');
+            calculateTotalPrice();
+            updateSubTypeOptions();
+        }
+
+        function showDeleteModal(id) { itemToDelete = id; UI.deleteModal.classList.remove('hidden'); }
+        function hideDeleteModal() { itemToDelete = null; UI.deleteModal.classList.add('hidden'); }
+        
         async function handleDeleteConfirm() {
             if (itemToDelete) {
-                try {
-                    const docRef = doc(db, 'public_items', itemToDelete);
-                    await deleteDoc(docRef);
-                } catch (error) {
-                    console.error("Error deleting document: ", error);
-                } finally {
-                    hideDeleteModal();
-                }
+                try { await deleteDoc(doc(db, 'public_items', itemToDelete)); } 
+                catch (e) { console.error("Error deleting document: ", e); } 
+                finally { hideDeleteModal(); }
             }
         }
         
         function exportToExcel() {
-            if (currentDataForExport.length === 0) {
-                formError.textContent = 'ไม่มีข้อมูลสำหรับ Export';
-                setTimeout(() => formError.textContent = '', 3000);
-                return;
+            if(allDataForMonth.length === 0) {
+                 UI.formError.textContent = 'ไม่มีข้อมูลสำหรับ Export';
+                 setTimeout(() => UI.formError.textContent = '', 3000);
+                 return;
             }
-            try {
-                const ws = XLSX.utils.json_to_sheet(currentDataForExport);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Data Export");
-                XLSX.writeFile(wb, "pr_gr_export.xlsx");
-            } catch (error) {
-                console.error("Export to Excel failed:", error);
-                formError.textContent = 'เกิดข้อผิดพลาดในการ Export Excel';
-            }
+            const dataToExport = allDataForMonth.map(d => ({'วันที่บันทึก': d.recordingDate?.toDate().toLocaleDateString('th-TH') || '','เลขที่ PR': d.prNumber,'วันที่ GR': d.grDate,'เลขที่ IV': d.ivNumber,'Vendor': d.vendor,'รายการ': d.item,'ราคาต่อหน่วย (Inc. VAT)': d.unitPrice,'จำนวน': d.quantity,'ราคารวม (Inc. VAT)': d.totalPrice,'Type': d.type,'Sub Type': d.subType,'PO Number': d.poNumber,'GR/TE': d.grTe,'GR Number': d.grNumber}));
+            try { const ws = XLSX.utils.json_to_sheet(dataToExport); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data Export"); XLSX.writeFile(wb, "opex_export.xlsx"); } 
+            catch (e) { console.error("Export to Excel failed:", e); UI.formError.textContent = 'เกิดข้อผิดพลาดในการ Export'; }
         }
 
-        // --- Event Listeners & Initializers ---
         if (db) {
-            unitPriceInput.addEventListener('input', calculateTotalPrice);
-            quantityInput.addEventListener('input', calculateTotalPrice);
-            typeSelect.addEventListener('change', updateSubTypeOptions);
-            exportBtn.addEventListener('click', exportToExcel);
-            confirmDeleteBtn.addEventListener('click', handleDeleteConfirm);
-            cancelDeleteBtn.addEventListener('click', hideDeleteModal);
+            UI.unitPrice.addEventListener('input', calculateTotalPrice);
+            UI.quantity.addEventListener('input', calculateTotalPrice);
+            UI.type.addEventListener('change', updateSubTypeOptions);
+            UI.exportBtn.addEventListener('click', exportToExcel);
+            UI.confirmDeleteBtn.addEventListener('click', handleDeleteConfirm);
+            UI.cancelDeleteBtn.addEventListener('click', hideDeleteModal);
+            UI.monthFilter.addEventListener('change', listenForDataChanges);
+            UI.prSearch.addEventListener('input', renderTableAndCharts);
 
-            form.addEventListener('submit', async (e) => {
+            UI.form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                formError.textContent = '';
+                UI.formError.textContent = '';
                 const formData = {
-                    recordingDate: serverTimestamp(), prNumber: document.getElementById('prNumber').value.trim(), grDate: document.getElementById('grDate').value, ivNumber: document.getElementById('ivNumber').value.trim(), vendor: vendorInput.value.trim(), item: document.getElementById('item').value.trim(), unitPrice: parseFloat(unitPriceInput.value) || 0, quantity: parseInt(quantityInput.value) || 0, totalPrice: (parseFloat(unitPriceInput.value) || 0) * (parseInt(quantityInput.value) || 0), type: typeSelect.value, subType: subTypeInput.disabled ? '' : subTypeInput.value.trim(), poNumber: document.getElementById('poNumber').value.trim(), grTe: document.getElementById('grTe').value, grNumber: document.getElementById('grNumber').value.trim()
+                    prNumber: document.getElementById('prNumber').value.trim(), grDate: document.getElementById('grDate').value, ivNumber: document.getElementById('ivNumber').value.trim(), vendor: UI.vendor.value.trim(), item: document.getElementById('item').value.trim(), unitPrice: parseFloat(UI.unitPrice.value) || 0, quantity: parseInt(UI.quantity.value) || 0, totalPrice: (parseFloat(UI.unitPrice.value) || 0) * (parseInt(UI.quantity.value) || 0), type: UI.type.value, subType: UI.subType.disabled ? '' : UI.subType.value.trim(), poNumber: document.getElementById('poNumber').value.trim(), grTe: document.getElementById('grTe').value, grNumber: document.getElementById('grNumber').value.trim()
                 };
-                if (!formData.prNumber || !formData.vendor || !formData.item || !formData.unitPrice || !formData.quantity || !formData.type) {
-                    formError.textContent = 'กรุณากรอกข้อมูลในช่องที่มีเครื่องหมาย * ให้ครบถ้วน';
-                    return;
-                }
+                if (!formData.prNumber || !formData.vendor || !formData.item || !formData.unitPrice || !formData.quantity || !formData.type) { UI.formError.textContent = 'กรุณากรอกข้อมูลในช่องที่มีเครื่องหมาย * ให้ครบถ้วน'; return; }
+                
                 try {
-                    await addDoc(collection(db, 'public_items'), formData);
-                    await addUniqueItemToCollection('public_vendors', formData.vendor);
-                    const subTypeConfig = subTypeMap[formData.type];
-                    if (subTypeConfig && subTypeConfig.isExtensible && formData.subType) {
-                        await addUniqueItemToCollection(subTypeConfig.collectionName, formData.subType);
+                    if(editingDocId) {
+                        await updateDoc(doc(db, 'public_items', editingDocId), formData);
+                    } else {
+                        formData.recordingDate = serverTimestamp();
+                        await addDoc(collection(db, 'public_items'), formData);
                     }
-                    form.reset();
-                    totalPriceInput.value = '';
-                    document.getElementById('recordingDate').value = new Date().toLocaleDateString('th-TH');
-                    updateSubTypeOptions();
+                    await addUniqueItem('public_vendors', formData.vendor);
+                    const subTypeConfig = subTypeMap[formData.type];
+                    if (subTypeConfig && subTypeConfig.e && formData.subType) {
+                        await addUniqueItem(subTypeConfig.c, formData.subType);
+                    }
+                    resetForm();
                 } catch (error) {
                     console.error("Error writing document:", error);
-                    formError.textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
+                    UI.formError.textContent = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
                 }
             });
 
-            // Initial Load
+            const today = new Date();
+            UI.monthFilter.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
             listenForDataChanges();
-            populateDatalist('public_vendors', vendorDatalist); 
-            document.getElementById('recordingDate').value = new Date().toLocaleDateString('th-TH');
-            updateSubTypeOptions();
+            populateDatalist('public_vendors', UI.vendorList); 
+            resetForm();
         }
     </script>
 </body>
