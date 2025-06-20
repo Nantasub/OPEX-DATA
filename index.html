@@ -54,7 +54,10 @@
                     </div>
                 </fieldset>
                 <div class="mt-6 text-center">
-                    <button type="submit" id="submit-btn" class="w-full md:w-auto bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 shadow-md" disabled>บันทึกข้อมูล</button>
+                    <div class="flex justify-center items-center space-x-2">
+                        <button type="button" id="load-last-btn" class="w-auto bg-gray-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-300 shadow-md" disabled>โหลดข้อมูลล่าสุด</button>
+                        <button type="submit" id="submit-btn" class="w-auto bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 shadow-md" disabled>บันทึกข้อมูล</button>
+                    </div>
                     <p id="form-error" class="text-red-500 text-sm mt-2 h-4"></p>
                 </div>
             </form>
@@ -168,6 +171,7 @@
         let unsubscribeItems = null;
         let allDataForMonth = [];
         let editingDocId = null;
+        let lastSavedEntry = null; // To store the last entry
         
         let budgetChartInstance, typeChartInstance, subTypeChartInstance, vendorChartInstance;
 
@@ -176,6 +180,7 @@
         const UI = {
             form: document.getElementById('data-form'),
             submitBtn: document.getElementById('submit-btn'),
+            loadLastBtn: document.getElementById('load-last-btn'), // New button
             formError: document.getElementById('form-error'),
             unitPrice: document.getElementById('unitPrice'),
             quantity: document.getElementById('quantity'),
@@ -190,7 +195,7 @@
             confirmDeleteBtn: document.getElementById('modal-confirm-delete'),
             cancelDeleteBtn: document.getElementById('modal-cancel-delete'),
             monthFilter: document.getElementById('month-filter'),
-            searchInput: document.getElementById('search-input'), // Changed ID
+            searchInput: document.getElementById('search-input'),
             tableBody: document.getElementById('data-table-body'),
             totalUsed: document.getElementById('total-used'),
             totalRemaining: document.getElementById('total-remaining'),
@@ -203,7 +208,7 @@
         async function populateDatalist(col, el, def) { try { const snap = await getDocs(collection(db, col)); const items = new Set(def); snap.forEach(doc => items.add(doc.data().name)); el.innerHTML = ''; Array.from(items).sort().forEach(item => { const opt = document.createElement('option'); opt.value = item; el.appendChild(opt); }); } catch (e) { console.error(`Error populating ${col}:`, e); } }
         async function addUniqueItem(col, name) { if (!name) return; try { await setDoc(doc(db, col, name), { name }); } catch (e) { console.error(`Error upserting item to ${col}:`, e); } }
         
-        function updateSubTypeOptions() { const config = subTypeMap[UI.type.value]; UI.subType.value = ''; UI.subTypeList.innerHTML = ''; if (config && config.o.length > 0) { UI.subType.disabled = false; config.o.forEach(opt => { const o = document.createElement('option'); o.value = opt; UI.subTypeList.appendChild(o); }); if (config.e && config.c) { populateDatalist(config.c, UI.subTypeList, config.o); } } else { UI.subType.disabled = true; } }
+        async function updateSubTypeOptions() { const config = subTypeMap[UI.type.value]; UI.subType.value = ''; UI.subTypeList.innerHTML = ''; if (config && config.o.length > 0) { UI.subType.disabled = false; config.o.forEach(opt => { const o = document.createElement('option'); o.value = opt; UI.subTypeList.appendChild(o); }); if (config.e && config.c) { await populateDatalist(config.c, UI.subTypeList, config.o); } } else { UI.subType.disabled = true; } }
         function calculateTotalPrice() { const p = parseFloat(UI.unitPrice.value) || 0; const q = parseInt(UI.quantity.value) || 0; UI.totalPrice.value = (p * q).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
         function listenForDataChanges() {
@@ -346,6 +351,31 @@
                 UI.budgetTargetInput.value = currentBudgetTarget;
             }
         }
+        
+        async function loadLastEntry() {
+            if (lastSavedEntry) {
+                resetForm();
+                document.getElementById('prNumber').value = lastSavedEntry.prNumber || '';
+                document.getElementById('grDate').value = lastSavedEntry.grDate || '';
+                document.getElementById('ivNumber').value = lastSavedEntry.ivNumber || '';
+                document.getElementById('vendor').value = lastSavedEntry.vendor || '';
+                UI.type.value = lastSavedEntry.type || '';
+                await updateSubTypeOptions();
+                document.getElementById('subType').value = lastSavedEntry.subType || '';
+                document.getElementById('poNumber').value = lastSavedEntry.poNumber || '';
+                document.getElementById('grTe').value = lastSavedEntry.grTe || 'GR';
+                document.getElementById('grNumber').value = lastSavedEntry.grNumber || '';
+
+                // Clear fields as requested
+                document.getElementById('item').value = '';
+                document.getElementById('unitPrice').value = '';
+                document.getElementById('quantity').value = '';
+                document.getElementById('totalPrice').value = '';
+                document.getElementById('item').focus();
+            } else {
+                alert('ยังไม่มีข้อมูลล่าสุดให้โหลด');
+            }
+        }
 
         if (db) {
             UI.unitPrice.addEventListener('input', calculateTotalPrice);
@@ -357,6 +387,7 @@
             UI.monthFilter.addEventListener('change', listenForDataChanges);
             UI.searchInput.addEventListener('input', renderTableAndCharts);
             UI.updateTargetBtn.addEventListener('click', handleUpdateTarget);
+            UI.loadLastBtn.addEventListener('click', loadLastEntry);
 
             UI.form.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -365,8 +396,16 @@
                 if (!formData.vendor || !formData.item || !formData.unitPrice || !formData.quantity || !formData.type) { UI.formError.textContent = 'กรุณากรอกข้อมูลในช่องที่มีเครื่องหมาย * ให้ครบถ้วน'; return; }
                 
                 try {
-                    if(editingDocId) { await updateDoc(doc(db, 'public_items', editingDocId), formData); } 
-                    else { formData.recordingDate = serverTimestamp(); await addDoc(collection(db, 'public_items'), formData); }
+                    if(editingDocId) { 
+                        await updateDoc(doc(db, 'public_items', editingDocId), formData); 
+                    } else { 
+                        formData.recordingDate = serverTimestamp(); 
+                        await addDoc(collection(db, 'public_items'), formData); 
+                    }
+                    
+                    lastSavedEntry = {...formData}; // Store the latest entry
+                    UI.loadLastBtn.disabled = false; // Enable the button
+
                     await addUniqueItem('public_vendors', formData.vendor);
                     const subTypeConfig = subTypeMap[formData.type];
                     if (subTypeConfig && subTypeConfig.e && formData.subType) { await addUniqueItem(subTypeConfig.c, formData.subType); }
