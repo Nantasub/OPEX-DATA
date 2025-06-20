@@ -180,7 +180,7 @@
         const UI = {
             form: document.getElementById('data-form'),
             submitBtn: document.getElementById('submit-btn'),
-            loadLastBtn: document.getElementById('load-last-btn'), // New button
+            loadLastBtn: document.getElementById('load-last-btn'),
             formError: document.getElementById('form-error'),
             unitPrice: document.getElementById('unitPrice'),
             quantity: document.getElementById('quantity'),
@@ -208,7 +208,33 @@
         async function populateDatalist(col, el, def) { try { const snap = await getDocs(collection(db, col)); const items = new Set(def); snap.forEach(doc => items.add(doc.data().name)); el.innerHTML = ''; Array.from(items).sort().forEach(item => { const opt = document.createElement('option'); opt.value = item; el.appendChild(opt); }); } catch (e) { console.error(`Error populating ${col}:`, e); } }
         async function addUniqueItem(col, name) { if (!name) return; try { await setDoc(doc(db, col, name), { name }); } catch (e) { console.error(`Error upserting item to ${col}:`, e); } }
         
-        async function updateSubTypeOptions() { const config = subTypeMap[UI.type.value]; UI.subType.value = ''; UI.subTypeList.innerHTML = ''; if (config && config.o.length > 0) { UI.subType.disabled = false; config.o.forEach(opt => { const o = document.createElement('option'); o.value = opt; UI.subTypeList.appendChild(o); }); if (config.e && config.c) { await populateDatalist(config.c, UI.subTypeList, config.o); } } else { UI.subType.disabled = true; } }
+        async function updateSubTypeOptions() {
+            const selectedType = UI.type.value;
+            const config = subTypeMap[selectedType];
+            UI.subType.value = '';
+            UI.subTypeList.innerHTML = '';
+            
+            if (config && config.o.length > 0) {
+                UI.subType.disabled = false;
+                UI.subType.style.backgroundColor = ''; // Reset background
+                config.o.forEach(opt => {
+                    const o = document.createElement('option');
+                    o.value = opt;
+                    UI.subTypeList.appendChild(o);
+                });
+                if (config.e && config.c) {
+                    await populateDatalist(config.c, UI.subTypeList, config.o);
+                }
+            } else {
+                UI.subType.disabled = true;
+                if (selectedType) {
+                    UI.subType.value = selectedType; // Set value visually
+                    UI.subType.style.backgroundColor = '#E5E7EB'; // Visually indicate it's auto-filled
+                } else {
+                    UI.subType.style.backgroundColor = '';
+                }
+            }
+        }
         function calculateTotalPrice() { const p = parseFloat(UI.unitPrice.value) || 0; const q = parseInt(UI.quantity.value) || 0; UI.totalPrice.value = (p * q).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
         function listenForDataChanges() {
@@ -392,7 +418,22 @@
             UI.form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 UI.formError.textContent = '';
-                const formData = { prNumber: document.getElementById('prNumber').value.trim(), grDate: document.getElementById('grDate').value, ivNumber: document.getElementById('ivNumber').value.trim(), vendor: UI.vendor.value.trim(), item: document.getElementById('item').value.trim(), unitPrice: parseFloat(UI.unitPrice.value) || 0, quantity: parseInt(UI.quantity.value) || 0, totalPrice: (parseFloat(UI.unitPrice.value) || 0) * (parseInt(UI.quantity.value) || 0), type: UI.type.value, subType: UI.subType.disabled ? '' : UI.subType.value.trim(), poNumber: document.getElementById('poNumber').value.trim(), grTe: document.getElementById('grTe').value, grNumber: document.getElementById('grNumber').value.trim() };
+                const formData = {
+                    prNumber: document.getElementById('prNumber').value.trim(),
+                    grDate: document.getElementById('grDate').value,
+                    ivNumber: document.getElementById('ivNumber').value.trim(),
+                    vendor: UI.vendor.value.trim(),
+                    item: document.getElementById('item').value.trim(),
+                    unitPrice: parseFloat(UI.unitPrice.value) || 0,
+                    quantity: parseInt(UI.quantity.value) || 0,
+                    totalPrice: (parseFloat(UI.unitPrice.value) || 0) * (parseInt(UI.quantity.value) || 0),
+                    type: UI.type.value,
+                    subType: UI.subType.value.trim(), // Get value directly from the input
+                    poNumber: document.getElementById('poNumber').value.trim(),
+                    grTe: document.getElementById('grTe').value,
+                    grNumber: document.getElementById('grNumber').value.trim()
+                };
+
                 if (!formData.vendor || !formData.item || !formData.unitPrice || !formData.quantity || !formData.type) { UI.formError.textContent = 'กรุณากรอกข้อมูลในช่องที่มีเครื่องหมาย * ให้ครบถ้วน'; return; }
                 
                 try {
